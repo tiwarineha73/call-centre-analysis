@@ -32,7 +32,7 @@ plt.rcParams["font.family"] = "DejaVu Sans"
 import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA_PATH = os.path.join(BASE_DIR, "Call_Center_Data.csv")
+DATA_PATH = os.path.join(BASE_DIR, "Call Center_Data.csv")
 
 df = pd.read_csv(DATA_PATH)
 print(f"Dataset loaded: {df.shape[0]:,} rows × {df.shape[1]} columns")
