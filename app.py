@@ -37,11 +37,6 @@ st.write (f"Dataset loaded:{df.shape[0]}rows x {df.shape[1]}columns")
 st.subheader("Dataset Preview")
 st.subheader("📊 Key Metrics")
 
-col1, col2, col3 = st.columns(3)
-
-col1.metric("Total Calls", len(filtered_df))
-col2.metric("Unique Cities", filtered_df["City"].nunique())
-col3.metric("Channels", filtered_df["Channel"].nunique())
 
 st.subheader("Filtered Data")
 st.dataframe(filtered_df)
@@ -56,6 +51,12 @@ city = st.sidebar.selectbox("Select City", df["City"].unique())
 channel = st.sidebar.selectbox("Select Channel", df["Channel"].unique())
 
 filtered_df = df[(df["City"] == city) & (df["Channel"] == channel)]
+col1, col2, col3 = st.columns(3)
+
+col1.metric("Total Calls", len(filtered_df))
+col2.metric("Unique Cities", filtered_df["City"].nunique())
+col3.metric("Channels", filtered_df["Channel"].nunique())
+
 # ─────────────────────────────────────────────────────────────────────────────
 # SECTION 3: DATA CLEANING & FEATURE ENGINEERING
 # ─────────────────────────────────────────────────────────────────────────────
