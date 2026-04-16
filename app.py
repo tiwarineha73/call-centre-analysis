@@ -32,7 +32,7 @@ plt.rcParams["font.family"] = "DejaVu Sans"
 # ─────────────────────────────────────────────────────────────────────────────
 # SECTION 2: DATA LOADING
 # ─────────────────────────────────────────────────────────────────────────────
-df = pd.read_csv("data/Call_Center_Data.csv")
+df = pd.read_csv("Call_Center_Data.csv")
 st.write (f"Dataset loaded:{df.shape[0]}rows x {df.shape[1]}columns")
 st.subheader("Dataset Preview")
 st.dataframe(df.head())
