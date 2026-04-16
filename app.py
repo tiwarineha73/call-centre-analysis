@@ -12,138 +12,102 @@
 import streamlit as st
 import pandas as pd
 
-# -------------------------------
-# PAGE CONFIG
-# -------------------------------
-st.set_page_config(
-    page_title="Call Centre Analytics",
-    layout="wide",
-    page_icon="📊"
-)
+# ------------------ PAGE CONFIG ------------------
+st.set_page_config(page_title="Call Centre Dashboard", layout="wide")
 
-# -------------------------------
-# CUSTOM CSS
-# -------------------------------
-st.markdown("""
-<style>
-.main {
-    background-color: #f5f7fa;
-}
-.metric-card {
-    background-color: white;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0px 4px 12px rgba(0,0,0,0.08);
-    text-align: center;
-}
-.title {
-    font-size: 32px;
-    font-weight: 700;
-    color: #111827;
-}
-</style>
-""", unsafe_allow_html=True)
+st.title("📊 Call Centre Analytics Dashboard")
 
-# -------------------------------
-# TITLE
-# -------------------------------
-st.markdown('<p class="title">📊 Call Centre Analytics Dashboard</p>', unsafe_allow_html=True)
-
-# -------------------------------
-# LOAD DATA
-# -------------------------------
+# ------------------ LOAD DATA ------------------
 df = pd.read_csv("Call_Center_Data.csv")
 
-# Convert date
-df["Call Timestamp"] = pd.to_datetime(df["Call Timestamp"], dayfirst=True)
+# 🔥 FIX COLUMN NAMES (important)
+df.columns = df.columns.map(str).str.strip()
 
-st.caption(f"📂 Dataset: {df.shape[0]} rows × {df.shape[1]} columns")
-
-# -------------------------------
-# SIDEBAR FILTERS
-# -------------------------------
+# ------------------ SIDEBAR FILTERS ------------------
 st.sidebar.header("🔍 Filters")
 
-city = st.sidebar.selectbox("City", df["City"].unique())
-channel = st.sidebar.selectbox("Channel", df["Channel"].unique())
+# Safe column names
+city_col = "City" if "City" in df.columns else df.columns[0]
+channel_col = "Channel" if "Channel" in df.columns else df.columns[1]
 
-# -------------------------------
-# FILTERED DATA
-# -------------------------------
-filtered_df = df[(df["City"] == city) & (df["Channel"] == channel)]
+city = st.sidebar.selectbox("Select City", df[city_col].dropna().unique())
+channel = st.sidebar.selectbox("Select Channel", df[channel_col].dropna().unique())
 
-# -------------------------------
-# KPI METRICS
-# -------------------------------
-st.subheader("📊 Key Performance Indicators")
+# Apply filters
+filtered_df = df[(df[city_col] == city) & (df[channel_col] == channel)]
 
-total_calls = len(filtered_df)
-avg_csat = round(filtered_df["CSAT Score"].mean(), 2)
-sla = round((filtered_df["SLA Compliance"] == "Yes").mean() * 100, 2)
+# ------------------ DATA INFO ------------------
+st.write(f"Dataset loaded: {df.shape[0]} rows × {df.shape[1]} columns")
+
+# ------------------ KPI SECTION ------------------
+st.subheader("📌 Key Performance Indicators")
 
 col1, col2, col3 = st.columns(3)
 
-with col1:
-    st.markdown(f"""
-    <div class="metric-card">
-        <h3>Total Calls</h3>
-        <h2>{total_calls}</h2>
-    </div>
-    """, unsafe_allow_html=True)
+# Total Calls
+col1.metric("Total Calls", len(filtered_df))
 
-with col2:
-    st.markdown(f"""
-    <div class="metric-card">
-        <h3>Avg CSAT</h3>
-        <h2>{avg_csat}</h2>
-    </div>
-    """, unsafe_allow_html=True)
+# Unique Cities
+if "City" in df.columns:
+    col2.metric("Unique Cities", filtered_df["City"].nunique())
+else:
+    col2.metric("Unique Cities", 0)
 
-with col3:
-    st.markdown(f"""
-    <div class="metric-card">
-        <h3>SLA Compliance %</h3>
-        <h2>{sla}%</h2>
-    </div>
-    """, unsafe_allow_html=True)
+# Channels
+if "Channel" in df.columns:
+    col3.metric("Channels", filtered_df["Channel"].nunique())
+else:
+    col3.metric("Channels", 0)
 
-# -------------------------------
-# TIME TREND
-# -------------------------------
-st.subheader("📈 Call Volume Trend")
+# ------------------ ADVANCED KPIs ------------------
+st.subheader("📈 Performance Metrics")
 
-calls_trend = filtered_df.groupby(filtered_df["Call Timestamp"].dt.date).size()
-st.line_chart(calls_trend)
+col4, col5 = st.columns(2)
 
-# -------------------------------
-# CHARTS SECTION
-# -------------------------------
-st.subheader("📊 Insights")
+# ✅ CSAT FIX
+csat_col = None
+for col in df.columns:
+    if "csat" in col.lower():
+        csat_col = col
+        break
 
-col1, col2 = st.columns(2)
+if csat_col:
+    avg_csat = round(filtered_df[csat_col].mean(), 2)
+    col4.metric("⭐ Avg CSAT Score", avg_csat)
+else:
+    col4.metric("⭐ Avg CSAT Score", "N/A")
 
-with col1:
-    st.markdown("### Calls by City")
-    st.bar_chart(filtered_df["City"].value_counts())
+# ✅ SLA FIX (from Response Time)
+if "Response Time" in df.columns:
+    sla = round((filtered_df["Response Time"].astype(str).str.contains("Within")).mean() * 100, 2)
+    col5.metric("⏱ SLA Compliance (%)", f"{sla}%")
+else:
+    col5.metric("⏱ SLA Compliance (%)", "N/A")
 
-with col2:
-    st.markdown("### Calls by Channel")
-    st.bar_chart(filtered_df["Channel"].value_counts())
+# ------------------ DATA PREVIEW ------------------
+st.subheader("📋 Filtered Data")
+st.dataframe(filtered_df)
 
-# -------------------------------
-# CSAT DISTRIBUTION
-# -------------------------------
-st.subheader("⭐ CSAT Score Distribution")
-st.bar_chart(filtered_df["CSAT Score"].value_counts())
+# ------------------ VISUALS ------------------
+st.subheader("📊 Calls by City")
 
-# -------------------------------
-# SLA DISTRIBUTION
-# -------------------------------
-st.subheader("⏱ SLA Compliance Breakdown")
-st.bar_chart(filtered_df["SLA Compliance"].value_counts())
+if "City" in df.columns:
+    city_counts = filtered_df["City"].value_counts()
+    st.bar_chart(city_counts)
 
-# -------------------------------
-# DATA TABLE
-# -------------------------------
-st.subheader("📄 Filtered Data")
-st.dataframe(filtered_df, use_container_width=True)
+# ------------------ EXTRA INSIGHTS ------------------
+st.subheader("🧠 Insights")
+
+if csat_col:
+    if avg_csat >= 7:
+        st.success("✅ Customer satisfaction is good")
+    else:
+        st.warning("⚠️ Customer satisfaction needs improvement")
+
+if "Response Time" in df.columns:
+    if sla >= 80:
+        st.success("✅ SLA performance is strong")
+    else:
+        st.error("❌ SLA performance is poor")
+
+st.write("👉 Friday and weekday trends usually show higher call volume.")
