@@ -19,7 +19,7 @@ import os
 
 warnings.filterwarnings("ignore")
 
-OUTPUT_DIR = "../outputs"
+OUTPUT_DIR = "outputs"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 sns.set_theme(style="whitegrid", palette="muted")
@@ -32,7 +32,7 @@ plt.rcParams["font.family"] = "DejaVu Sans"
 import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA_PATH = os.path.join(BASE_DIR, "data", "Call_Center_Data.csv")
+DATA_PATH = os.path.join(BASE_DIR, "Call_Center_Data.csv")
 
 df = pd.read_csv(DATA_PATH)
 print(f"Dataset loaded: {df.shape[0]:,} rows × {df.shape[1]} columns")
