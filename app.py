@@ -58,6 +58,7 @@ df = pd.read_csv("Call_Center_Data.csv")
 df["Call Timestamp"] = pd.to_datetime(df["Call Timestamp"], dayfirst=True)
 
 st.caption(f"📂 Dataset: {df.shape[0]} rows × {df.shape[1]} columns")
+df.columns = df.columns,str.strip()
 
 # -------------------------------
 # SIDEBAR FILTERS
@@ -78,7 +79,7 @@ filtered_df = df[(df["City"] == city) & (df["Channel"] == channel)]
 st.subheader("📊 Key Performance Indicators")
 st.write(df.columns)
 total_calls = len(filtered_df)
-avg_csat = round(filtered_df["CSAT"].mean(), 2)
+avg_csat = round(filtered_df["CSAT Score"].mean(), 2)
 sla = round((filtered_df["SLA"] == "Yes").mean() * 100, 2)
 
 col1, col2, col3 = st.columns(3)
