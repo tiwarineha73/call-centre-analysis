@@ -58,7 +58,6 @@ df = pd.read_csv("Call_Center_Data.csv")
 df["Call Timestamp"] = pd.to_datetime(df["Call Timestamp"], dayfirst=True)
 
 st.caption(f"📂 Dataset: {df.shape[0]} rows × {df.shape[1]} columns")
-df.columns = df.columns,str.strip()
 
 # -------------------------------
 # SIDEBAR FILTERS
