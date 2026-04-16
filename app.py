@@ -76,7 +76,7 @@ filtered_df = df[(df["City"] == city) & (df["Channel"] == channel)]
 # KPI METRICS
 # -------------------------------
 st.subheader("📊 Key Performance Indicators")
-st.write(df.colums)
+st.write(df.columns)
 total_calls = len(filtered_df)
 avg_csat = round(filtered_df["CSAT"].mean(), 2)
 sla = round((filtered_df["SLA"] == "Yes").mean() * 100, 2)
